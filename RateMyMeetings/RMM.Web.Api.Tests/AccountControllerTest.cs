@@ -13,11 +13,12 @@ namespace RMM.Web.Api.Tests
     {
         private IUserRepository _repository;
         private AccountController _controller;
+
         public AccountControllerTest()
         {
             _repository = Substitute.For<IUserRepository>();
 
-            _controller = new AccountController(_repository);    
+            _controller = new AccountController(_repository);
         }
 
         [Fact]
@@ -98,17 +99,11 @@ namespace RMM.Web.Api.Tests
         public void RegisterShouldReturnBadRequestWhenEmailIsInvalid()
         {
             IHttpActionResult result = _controller.Register("companyName", "email.test.com", "password");
-            
-            result.As<BadRequestErrorMessageResult>()
-              .Message
-              .Should()
-              .Be("Invalid Email");
-        }
 
-        [Fact]
-        public void SomeTest()
-        {
-            true.Should().BeTrue();
+            result.As<BadRequestErrorMessageResult>()
+                .Message
+                .Should()
+                .Be("Invalid Email");
         }
     }
 }
