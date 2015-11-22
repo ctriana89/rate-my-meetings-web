@@ -104,5 +104,11 @@ namespace RMM.Web.Api.Tests
               .Should()
               .Be("Invalid Email");
         }
+
+        [Fact]
+        public void SomeTest()
+        {
+            true.Should().BeTrue();
+        }
     }
 }
