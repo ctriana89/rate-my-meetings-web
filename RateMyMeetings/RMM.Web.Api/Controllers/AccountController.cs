@@ -14,10 +14,12 @@ namespace RMM.Web.Api
     public class AccountController : ApiController
     {
         private readonly IUserRepository _repository;
+        private readonly IEmailValidator _emailValidator;
 
-        public AccountController(IUserRepository repository)
+        public AccountController(IUserRepository repository, IEmailValidator validor)
         {
             this._repository = repository;
+            _emailValidator = validor;
         }
 
         public IHttpActionResult Login(string userName, string password)
@@ -37,20 +39,19 @@ namespace RMM.Web.Api
                 return this.BadRequest("Company Name, Email or Password must be not empty");
             }
 
-            if (IsValidEmail(email))
+            if (_emailValidator.IsValidEmail(email))
             {
-                return this.BadRequest("not implemented");
+                User user = _repository.GetUser(email);
+
+                if (user != null)
+                {
+                    return BadRequest("Existing User");
+                }
+
+                return Ok(_repository.CreateUser(email, companyName, password));
             }
 
             return this.BadRequest("Invalid Email");
-        }
-
-        private bool IsValidEmail(string email)
-        {
-            return Regex.IsMatch(email,
-                @"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
-                @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$",
-                RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
         }
     }
 }
