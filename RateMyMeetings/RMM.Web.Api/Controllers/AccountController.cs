@@ -13,7 +13,7 @@ namespace RMM.Web.Api
 {
     public class AccountController : ApiController
     {
-        private IUserRepository _repository;
+        private readonly IUserRepository _repository;
 
         public AccountController(IUserRepository repository)
         {
@@ -36,14 +36,21 @@ namespace RMM.Web.Api
             {
                 return this.BadRequest("Company Name, Email or Password must be not empty");
             }
-            if (!Regex.IsMatch(email,
+
+            if (IsValidEmail(email))
+            {
+                return this.BadRequest("not implemented");
+            }
+
+            return this.BadRequest("Invalid Email");
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            return Regex.IsMatch(email,
                 @"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
                 @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$",
-                RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250)))
-            {
-                return this.BadRequest("Invalid Email");
-            }
-            return this.BadRequest("not implemented");
+                RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(250));
         }
     }
 }

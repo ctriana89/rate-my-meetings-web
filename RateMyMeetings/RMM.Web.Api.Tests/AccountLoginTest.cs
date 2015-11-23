@@ -9,15 +9,14 @@ using Xunit;
 
 namespace RMM.Web.Api.Tests
 {
-    public class AccountControllerTest
+    public class AccountLoginTest
     {
         private IUserRepository _repository;
         private AccountController _controller;
 
-        public AccountControllerTest()
+        public AccountLoginTest()
         {
             _repository = Substitute.For<IUserRepository>();
-
             _controller = new AccountController(_repository);
         }
 
@@ -62,48 +61,6 @@ namespace RMM.Web.Api.Tests
             User user = message.As<OkNegotiatedContentResult<User>>().Content;
 
             user.Should().BeNull();
-        }
-
-        [Fact]
-        public void RegisterShouldReturnBadRequestWhenCompanyNameIsEmpty()
-        {
-            var result = _controller.Register(null, "email@test.com", "password");
-
-            result.As<BadRequestErrorMessageResult>()
-                .Message
-                .Should()
-                .Be("Company Name, Email or Password must be not empty");
-        }
-
-        [Fact]
-        public void RegisterShouldReturnBadRequestWhenEmailIsEmpty()
-        {
-            var result = _controller.Register("companyName", null, "password");
-            result.As<BadRequestErrorMessageResult>()
-                .Message
-                .Should()
-                .Be("Company Name, Email or Password must be not empty");
-        }
-
-        [Fact]
-        public void RegisterShouldReturnBadRequestWhenPasswordIsEmpty()
-        {
-            var result = _controller.Register("companyName", "email@test.com", null);
-            result.As<BadRequestErrorMessageResult>()
-                .Message
-                .Should()
-                .Be("Company Name, Email or Password must be not empty");
-        }
-
-        [Fact]
-        public void RegisterShouldReturnBadRequestWhenEmailIsInvalid()
-        {
-            IHttpActionResult result = _controller.Register("companyName", "email.test.com", "password");
-
-            result.As<BadRequestErrorMessageResult>()
-                .Message
-                .Should()
-                .Be("Invalid Email");
         }
     }
 }
