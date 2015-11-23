@@ -17,7 +17,7 @@ namespace RMM.Web.Api.Tests
         public AccountLoginTest()
         {
             _repository = Substitute.For<IUserRepository>();
-            _controller = new AccountController(_repository);
+            _controller = new AccountController(_repository, null);
         }
 
         [Fact]
@@ -63,4 +63,6 @@ namespace RMM.Web.Api.Tests
             user.Should().BeNull();
         }
     }
+
+
 }
