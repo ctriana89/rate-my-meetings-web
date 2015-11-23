@@ -1,3 +1,5 @@
+using System.Web.Http;
+using System.Web.Http.Results;
 using FluentAssertions;
 using NSubstitute;
 using NSubstitute.ReturnsExtensions;
@@ -21,17 +23,17 @@ namespace RMM.Web.Api.Tests
         [Fact]
         public void LoginShouldReturnNullWhenUserNameIsEmpty()
         {
-            var result = _controller.Login(null,"password");
+            var result = _controller.Login(null, "password").As<BadRequestErrorMessageResult>();
 
-            result.Should().BeNull();
+            result.Message.Should().Be("Username and password must be non empty");
         }
 
         [Fact]
         public void LoginShouldReturnNullWhenPasswordIsEmpty()
         {
-            var result = _controller.Login("asdfasdf", null);
+            var result = _controller.Login("asdfasdf", null).As<BadRequestErrorMessageResult>();
 
-            result.Should().BeNull();
+            result.Message.Should().Be("Username and password must be non empty");
         }
 
         [Fact]
@@ -40,7 +42,8 @@ namespace RMM.Web.Api.Tests
             _repository.GetUser("aUser", "aPassword").Returns(
                 new User {UserName = "aUser", Password = "aPassword"});
 
-            var user = _controller.Login("aUser", "aPassword");
+            IHttpActionResult message = _controller.Login("aUser", "aPassword");
+            var user = message.As<OkNegotiatedContentResult<User>>().Content;
 
             user.UserName.Should().Be("aUser");
             user.Password.Should().Be("aPassword");
@@ -53,9 +56,53 @@ namespace RMM.Web.Api.Tests
                 .GetUser(Arg.Any<string>(), Arg.Any<string>())
                 .ReturnsNull();
 
-            var user = _controller.Login("user", "password");
+            IHttpActionResult message = _controller.Login("aUser", "aPassword");
+
+            User user = message.As<OkNegotiatedContentResult<User>>().Content;
 
             user.Should().BeNull();
+        }
+
+        [Fact]
+        public void RegisterShouldReturnBadRequestWhenCompanyNameIsEmpty()
+        {
+            var result = _controller.Register(null, "email@test.com", "password");
+
+            result.As<BadRequestErrorMessageResult>()
+                .Message
+                .Should()
+                .Be("Company Name, Email or Password must be not empty");
+        }
+
+        [Fact]
+        public void RegisterShouldReturnBadRequestWhenEmailIsEmpty()
+        {
+            var result = _controller.Register("companyName", null, "password");
+            result.As<BadRequestErrorMessageResult>()
+                .Message
+                .Should()
+                .Be("Company Name, Email or Password must be not empty");
+        }
+
+        [Fact]
+        public void RegisterShouldReturnBadRequestWhenPasswordIsEmpty()
+        {
+            var result = _controller.Register("companyName", "email@test.com", null);
+            result.As<BadRequestErrorMessageResult>()
+                .Message
+                .Should()
+                .Be("Company Name, Email or Password must be not empty");
+        }
+
+        [Fact]
+        public void RegisterShouldReturnBadRequestWhenEmailIsInvalid()
+        {
+            IHttpActionResult result = _controller.Register("companyName", "email.test.com", "password");
+            
+            result.As<BadRequestErrorMessageResult>()
+              .Message
+              .Should()
+              .Be("Invalid Email");
         }
     }
 }
